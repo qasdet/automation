@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, Any
 
 from playwright.sync_api import Page
 
@@ -6,7 +6,7 @@ from playwright.sync_api import Page
 class KeyBind:
     __instance = None
 
-    def __new__(cls) -> Self:
+    def __new__(cls) -> Self | Any:
         if cls.__instance is None:
             cls.__instance: Self = super().__new__(cls=cls)
         return cls.__instance

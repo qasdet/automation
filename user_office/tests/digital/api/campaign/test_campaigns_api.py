@@ -2,6 +2,7 @@ import json
 
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from db_stuff.db_interactions.campaigns_db_interactions import (
     get_campaigns_by_organization_id,
@@ -42,6 +43,5 @@ class TestCampaignsAPI:
         campaigns_api_json = json.dumps(
             campaigns_for_organization_api, sort_keys=True
         )
-        assert (
-            campaigns_db_json == campaigns_api_json
-        ), 'Список кампаний через API не совпадает с ожидаемым из БД'
+        expect(campaigns_db_json == campaigns_api_json,
+               'Список кампаний через API не совпадает с ожидаемым из БД').to_be_true()

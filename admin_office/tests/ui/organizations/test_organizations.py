@@ -33,6 +33,14 @@ def life_cycle_of_the_organization_with_all_field():
 
 @pytest.mark.usefixtures('authorization_in_admin_office_with_token')
 class TestsOrganizations:
+    """
+    Набор тестов для проверки функциональности справочника Организации.
+
+    Тестирует основные сценарии:
+    - Просмотр списка организаций с пагинацией
+    - Создание новой организации
+    """
+
     @staticmethod
     @pytest.mark.smoke
     @allure.title('Страница Организации')
@@ -42,7 +50,14 @@ class TestsOrganizations:
         admin_organizations_page: AdminOfficeOrganizationsPage,
         authorization_in_admin_office_with_token: str,
     ):
-        """Страница Организации"""
+        """
+        Тест проверки отображения справочника организаций с пагинацией.
+
+        Проверяет:
+        - Общее количество организаций соответствует API
+        - Пагинация корректно работает при переходе на вторую страницу
+        - Количество строк на второй странице соответствует ожиданиям
+        """
         token = authorization_in_admin_office_with_token
         admin_organizations_page.go_to_organizations()
         count_all_rows = get_count_of_organizations(token)
@@ -70,7 +85,15 @@ class TestsOrganizations:
         admin_organizations_page: AdminOfficeOrganizationsPage,
         life_cycle_of_the_organization_with_all_field,
     ):
-        """Добавление организации"""
+        """
+        Тест создания новой организации с заполнением всех полей.
+
+        Проверяет полный цикл создания организации:
+        - Открытие формы создания
+        - Заполнение всех полей данными из фикстуры
+        - Сохранение организации
+        - Проверка отображения созданной организации в списке
+        """
         data_organization = life_cycle_of_the_organization_with_all_field
         admin_organizations_page.go_to_organizations()
         admin_organizations_page.organizations.open_the_organization_creation_form()

@@ -1,37 +1,19 @@
 import allure
-import logging
+from playwright.sync_api import expect
 
-from controller.factory import Factory
-from playwright.sync_api import expect, Locator
-
-
-"""Компонент для обработки заголовков/текста"""
+from controller.factory import AssertableMixin, Factory
 
 
-class Title(Factory):
+class Title(AssertableMixin, Factory):
+    """Компонент для работы с заголовками и текстовыми элементами."""
+
     @property
     def type_of(self) -> str:
+        """Тип компонента для логирования."""
         return 'title'
 
-    def should_have_text(self, text: str, **kwargs):
-        """Проверка видимости текста заголовка на странице
-
-                Args:
-                    text (str): текст заголовка
-                """
-        with allure.step(
-                title=f'Checking that {self.type_of} "{self.name}" has text "{text}"'
-        ):
-            locator: Locator = self.get_locator(**kwargs)
-            logging.info(
-                f'Checking that {self.type_of} "{self.name}" has text "{text}"'
-            )
-            expect(actual=locator).to_have_text(expected=text)
-            assert locator.is_visible()
-
-    def has_texts(self, text: str, **kwargs):
-        locator = self.get_locator(**kwargs)
-        expect(locator).to_contain_text(text)
-
-    def __repr__(self):
-        return self.locator
+    def should_contain_text(self, text: str, **kwargs) -> 'Title':
+        """Проверить, что текст заголовка содержит указанную подстроку."""
+        with allure.step(f'Checking {self.type_of} "{self.name}" contains text "{text}"'):
+            expect(self.get_locator(**kwargs)).to_contain_text(text)
+        return self

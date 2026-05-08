@@ -17,7 +17,15 @@ data_product = make_data_all_product_fields()
 def clean_up_products_data(
     authorization_in_admin_office_with_token,
 ):
-    """ Удаляет данные после выполнения всех тестов """
+    """
+    Фикстура для очистки данных продуктов после выполнения тестов.
+
+    Args:
+        authorization_in_admin_office_with_token: Токен авторизации
+
+    Yields:
+        None
+    """
     token = authorization_in_admin_office_with_token
     created_product_id = get_product_id_by_naming(data_product['naming'])
     if created_product_id:
@@ -26,17 +34,35 @@ def clean_up_products_data(
 
 @pytest.mark.usefixtures('authorization_in_admin_office_with_token')
 class TestProducts:
+    """
+    Набор тестов для проверки функциональности справочника Продукты.
+
+    Тестирует основные сценарии:
+    - Просмотр списка продуктов с пагинацией
+    - Создание нового продукта
+    - Редактирование продукта через карточку
+    - Редактирование продукта через контекстное меню
+    - Удаление продукта через карточку
+    - Удаление продукта через контекстное меню
+    """
+
     @staticmethod
     @pytest.mark.smoke
     @allure.title('Справочник Продукты')
     @allure.story(jira.JIRA_LINK + 'MDP-1696')
     @allure.testcase(case.ALLURE_LINK + '225254')
     def test_view_products(
-            admin_base_url: str,
             admin_products_page: AdminOfficeProductsPage,
             authorization_in_admin_office_with_token: str,
     ):
-        """Справочник Продукты"""
+        """
+        Тест проверки отображения справочника продуктов с пагинацией.
+
+        Проверяет:
+        - Общее количество продуктов соответствует API
+        - Пагинация корректно работает при переходе на вторую страницу
+        - Количество строк на второй странице соответствует ожиданиям
+        """
         token = authorization_in_admin_office_with_token
         admin_products_page.go_to_products()
         count_all_rows = len(get_count_of_products(token))
@@ -52,7 +78,6 @@ class TestProducts:
         admin_products_page.products.check_quantity_products(
             count_rows_in_second_page
         )
-        admin_products_page.visit(admin_base_url + "/dictionaries/products")
 
     @staticmethod
     @pytest.mark.smoke
@@ -63,7 +88,16 @@ class TestProducts:
             admin_products_page: AdminOfficeProductsPage,
             authorization_in_admin_office_with_token: str,
     ):
-        """Создание записи в справочнике Продукт"""
+        """
+        Тест создания нового продукта.
+
+        Проверяет:
+        - Открытие формы создания продукта
+        - Заполнение всех полей данными
+        - Сохранение продукта
+        - Проверку отображения созданного продукта в списке
+        """
+        admin_products_page.go_to_products()
         admin_products_page.products.open_the_product_creation_form()
         admin_products_page.product_card.fill_all_fields(**data_product)
         admin_products_page.product_card.save_product()
@@ -75,17 +109,24 @@ class TestProducts:
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '131297')
     def test_edit_product(
-            admin_base_url: str,
             admin_products_page: AdminOfficeProductsPage,
             authorization_in_admin_office_with_token: str,
     ):
+        """
+        Тест редактирования продукта через карточку.
+
+        Проверяет:
+        - Открытие карточки продукта по клику на ссылку в строке
+        - Изменение названия продукта
+        - Сохранение изменений
+        - Проверку что данные обновились
+        """
         created_product_id = get_product_id_by_naming(data_product['naming'])
-        admin_products_page.products.page.get_by_role('row', name=created_product_id).get_by_role(
-            'link').click()
+        admin_products_page.products.open_product_card_by_id(str(created_product_id))
         admin_products_page.product_card.fill_product_name_field(data_product['name'] + 'ed1')
         data_product["name"] = data_product["name"] + "ed1"
         admin_products_page.product_card.save_product()
-        admin_products_page.products.page.reload(wait_until='load')
+        admin_products_page.reload()
         admin_products_page.products.check_new_product(data_product)
 
     @staticmethod
@@ -94,19 +135,26 @@ class TestProducts:
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '131297')
     def test_edit_product_context_menu(
-            admin_base_url: str,
             admin_products_page: AdminOfficeProductsPage,
             authorization_in_admin_office_with_token: str,
     ):
-        token = authorization_in_admin_office_with_token
+        """
+        Тест редактирования продукта через контекстное меню.
+
+        Проверяет:
+        - Открытие контекстного меню строки
+        - Выбор пункта "Редактировать"
+        - Изменение названия продукта
+        - Сохранение изменений
+        - Проверку что данные обновились
+        """
         created_product_id = get_product_id_by_naming(data_product['naming'])
-        admin_products_page.products.page.get_by_role('row', name=created_product_id).get_by_role(
-            'button').click()
-        admin_products_page.products.page.get_by_role("button", name="Редактировать").click()
+        admin_products_page.products.table.open_menu_action_in_row_by_contains_text(str(created_product_id))
+        admin_products_page.products.table.click_item_menu_action('Редактировать')
         admin_products_page.product_card.fill_product_name_field(data_product['name'] + 'ed2')
         data_product["name"] = data_product["name"] + "ed2"
         admin_products_page.product_card.save_product()
-        admin_products_page.products.page.reload(wait_until='load')
+        admin_products_page.reload()
         admin_products_page.products.check_new_product(data_product)
 
     @staticmethod
@@ -115,15 +163,22 @@ class TestProducts:
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '131296')
     def test_delete_product(
-            admin_base_url: str,
             admin_products_page: AdminOfficeProductsPage,
     ):
+        """
+        Тест удаления продукта через карточку.
+
+        Проверяет:
+        - Открытие карточки продукта
+        - Нажатие кнопки удаления
+        - Подтверждение удаления в диалоге
+        - Проверку что продукт больше не существует
+        """
         created_product_id = get_product_id_by_naming(data_product['naming'])
-        admin_products_page.products.page.get_by_role('row', name=created_product_id).get_by_role(
-            'link').click()
+        admin_products_page.products.open_product_card_by_id(str(created_product_id))
         admin_products_page.product_card.click_delete_button_product_card()
-        admin_products_page.page.get_by_test_id("dialog_confirm").click()
-        assert get_product_id_by_naming(data_product["naming"]) is False, "Запись не удалена"
+        admin_products_page.confirmation_dialog.confirm()
+        admin_products_page.products.table.row_by_contains_text(str(created_product_id)).should_not_be_visible()
 
     @staticmethod
     @pytest.mark.smoke
@@ -131,17 +186,26 @@ class TestProducts:
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '131296')
     def test_delete_product_context_menu(
-            admin_base_url: str,
             admin_products_page: AdminOfficeProductsPage,
-            clean_up_products_data,
     ):
+        """
+        Тест удаления продукта через контекстное меню.
+
+        Проверяет:
+        - Создание нового продукта
+        - Проверку его отображения в списке
+        - Открытие контекстного меню
+        - Удаление продукта
+        - Подтверждение удаления
+        - Проверку что продукт больше не существует
+        """
+        admin_products_page.go_to_products()
         admin_products_page.products.open_the_product_creation_form()
         admin_products_page.product_card.fill_all_fields(**data_product)
         admin_products_page.product_card.save_product()
         admin_products_page.products.check_new_product(data_product)
         created_product_id = get_product_id_by_naming(data_product['naming'])
-        admin_products_page.products.page.get_by_role('row', name=created_product_id).get_by_role(
-            'button').click()
-        admin_products_page.products.page.get_by_role("button", name="Удалить").click()
-        admin_products_page.page.get_by_test_id("dialog_confirm").click()
-        assert get_product_id_by_naming(data_product["naming"]) is False, "Запись не удалена"
+        admin_products_page.products.table.open_menu_action_in_row_by_contains_text(str(created_product_id))
+        admin_products_page.products.table.click_item_menu_action('Удалить')
+        admin_products_page.confirmation_dialog.confirm()
+        admin_products_page.products.table.row_by_contains_text(str(created_product_id)).should_not_be_visible()

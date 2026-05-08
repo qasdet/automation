@@ -1,5 +1,6 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from helper.linkshort import JiraLink as jira
 from db_stuff.db_interactions.integration_token_table_interaction import (
@@ -60,8 +61,8 @@ class TestYandexDirectConnection:
         account_added_value_ui = \
             placement_page.digital_placement.connections.yandex_direct_stat_gathering_method_automatic()
         placement_page.digital_placement.save_button.click()
-        assert get_integration_token_id(yandex_login), "Добавленного Яндекс-аккаунта нет в базе"
+        expect(get_integration_token_id(yandex_login), "Добавленного Яндекс-аккаунта нет в базе").to_be_truthy()
         account_added_value_db = get_source_account_by_integration_token(
             get_integration_token_id(yandex_login))
-        assert account_added_value_db == account_added_value_ui, "Значение из базы и значение из ЛК не совпадают"
+        expect(account_added_value_db == account_added_value_ui, "Значение из базы и значение из ЛК не совпадают").to_be_true()
         delete_integration_token_record_by_id(get_integration_token_id(yandex_login))

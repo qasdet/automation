@@ -13,6 +13,14 @@ from helper.linkshort import JiraLink as jira
 
 @pytest.mark.usefixtures('authorization_in_admin_office')
 class TestsPlacementStatusesUI:
+    """
+    Набор тестов для проверки функциональности справочника Статусы размещений.
+
+    Тестирует основные сценарии:
+    - Просмотр списка статусов размещений
+    - Проверка соответствия данных в UI и базе данных
+    """
+
     @staticmethod
     @pytest.mark.regress()
     @allure.title('Справочник Статусы размещений')
@@ -22,22 +30,29 @@ class TestsPlacementStatusesUI:
     def test_view_placement_statuses(
         admin_placement_statuses_page: AdminOfficePlacementStatusesPage,
     ) -> None:
-        """Справочник Статусы размещений"""
+        """
+        Тест проверки отображения справочника статусов размещений.
 
+        Проверяет:
+        - Переход на страницу статусов размещений
+        - Получение данных статусов из базы данных
+        - Соответствие ID, имени и кода в UI и базе данных
+        """
         admin_placement_statuses_page.go_to_placement_statuses()
         placement_statuses_db = get_list_of_the_placement_statuses_from_db()
-        for index, row_db in enumerate(placement_statuses_db):
-            admin_placement_statuses_page.placement_statuses.table.should_have_text_cell_in_row_by_contains_text(
+        table = admin_placement_statuses_page.placement_statuses.table
+        for row_db in placement_statuses_db:
+            table.should_have_text_cell_in_row_by_contains_text(
                 text_row=str(row_db['id']),
                 number_cell=0,
                 check_text=str(row_db['id']),
             )
-            admin_placement_statuses_page.placement_statuses.table.should_have_text_cell_in_row_by_contains_text(
+            table.should_have_text_cell_in_row_by_contains_text(
                 text_row=str(row_db['id']),
                 number_cell=1,
                 check_text=row_db['name'],
             )
-            admin_placement_statuses_page.placement_statuses.table.should_have_text_cell_in_row_by_contains_text(
+            table.should_have_text_cell_in_row_by_contains_text(
                 text_row=str(row_db['id']),
                 number_cell=2,
                 check_text=row_db['code'],

@@ -1,5 +1,6 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from helper.linkshort import AllureLink as case
 from helper.linkshort import JiraLink as jira
@@ -28,28 +29,16 @@ class TestUpdateCampaignAPI:
         campaign_data = CampaignsQueriesAPI(token).get_campaign_by_id(
             draft_campaign_id
         )
-        assert (
-                campaign_data['data']['campaigns'][0]['name']
-                == digital_test_data['campaign_name']
-        )
-        assert (
-                campaign_data['data']['campaigns'][0]['code']
-                == digital_test_data['campaign_naming']
-        )
-        assert (
-            campaign_data['data']['campaigns'][0]['status']['name']
-            == 'Черновик'
-        )
+        expect(campaign_data['data']['campaigns'][0]['name'] == digital_test_data['campaign_name']).to_be_true()
+        expect(campaign_data['data']['campaigns'][0]['code'] == digital_test_data['campaign_naming']).to_be_true()
+        expect(campaign_data['data']['campaigns'][0]['status']['name'] == 'Черновик').to_be_true()
         updated_campaign_data = CampaignsMutationsAPI(token).update_campaign_part(
             draft_campaign_id, digital_test_data
         )
         new_campaign_data = CampaignsQueriesAPI(token).get_campaign_by_id(
             draft_campaign_id
         )
-        assert (
-            new_campaign_data['data']['campaigns'][0]
-            == updated_campaign_data["data"]["campaignUpdate"]
-        )
+        expect(new_campaign_data['data']['campaigns'][0] == updated_campaign_data["data"]["campaignUpdate"]).to_be_true()
 
     @staticmethod
     @pytest.mark.regress()
@@ -70,28 +59,16 @@ class TestUpdateCampaignAPI:
         campaign_data = CampaignsQueriesAPI(token).get_campaign_by_id(
             campaign_id
         )
-        assert (
-                campaign_data['data']['campaigns'][0]['name']
-                == digital_test_data['campaign_name']
-        )
-        assert (
-                campaign_data['data']['campaigns'][0]['code']
-                == digital_test_data['campaign_naming']
-        )
-        assert (
-            campaign_data['data']['campaigns'][0]['status']['name']
-            == 'Планирование'
-        )
+        expect(campaign_data['data']['campaigns'][0]['name'] == digital_test_data['campaign_name']).to_be_true()
+        expect(campaign_data['data']['campaigns'][0]['code'] == digital_test_data['campaign_naming']).to_be_true()
+        expect(campaign_data['data']['campaigns'][0]['status']['name'] == 'Планирование').to_be_true()
         updated_campaign_data = CampaignsMutationsAPI(token).update_campaign_part(
             campaign_id, digital_test_data
         )
         new_campaign_data = CampaignsQueriesAPI(token).get_campaign_by_id(
             campaign_id
         )
-        assert (
-            new_campaign_data['data']['campaigns'][0]
-            == updated_campaign_data["data"]["campaignUpdate"],
-        )
+        expect(new_campaign_data['data']['campaigns'][0] == updated_campaign_data["data"]["campaignUpdate"]).to_be_true()
 
     @staticmethod
     @pytest.mark.regress()
@@ -112,25 +89,13 @@ class TestUpdateCampaignAPI:
         campaign_data = CampaignsQueriesAPI(token).get_campaign_by_id(
             campaign_id
         )
-        assert (
-                campaign_data['data']['campaigns'][0]['name']
-                == digital_test_data['campaign_name']
-        )
-        assert (
-                campaign_data['data']['campaigns'][0]['code']
-                == digital_test_data['campaign_naming']
-        )
-        assert (
-            campaign_data['data']['campaigns'][0]['status']['name']
-            == 'Планирование'
-        )
+        expect(campaign_data['data']['campaigns'][0]['name'] == digital_test_data['campaign_name']).to_be_true()
+        expect(campaign_data['data']['campaigns'][0]['code'] == digital_test_data['campaign_naming']).to_be_true()
+        expect(campaign_data['data']['campaigns'][0]['status']['name'] == 'Планирование').to_be_true()
         updated_campaign_data = CampaignsMutationsAPI(token).update_campaign_full(
             campaign_id, digital_test_data
         )
         new_campaign_data = CampaignsQueriesAPI(token).get_campaign_by_id(
             campaign_id
         )
-        assert (
-            new_campaign_data['data']['campaigns'][0]
-            == updated_campaign_data["data"]["campaignUpdate"],
-        )
+        expect(new_campaign_data['data']['campaigns'][0] == updated_campaign_data["data"]["campaignUpdate"]).to_be_true()

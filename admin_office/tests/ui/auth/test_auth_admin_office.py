@@ -12,6 +12,13 @@ disable_warnings(InsecureRequestWarning)
 
 
 class TestAuthAdminOffice:
+    """
+    Набор тестов для проверки авторизации в AdminOffice.
+
+    Тестирует основные сценарии:
+    - Проверка авторизации в AdminOffice
+    """
+
     @allure.title('Авторизация в Админ Офисе')
     @allure.severity(allure.severity_level.NORMAL)
     @allure.story(jira.JIRA_LINK + 'MDP-341')
@@ -21,5 +28,12 @@ class TestAuthAdminOffice:
         admin_office_authorization: AdminOfficeAuthorizationPage,
         admin_base_url: str,
     ):
+        """
+        Тест проверки авторизации в AdminOffice.
+
+        Проверяет:
+        - Успешный переход на страницу авторизации AdminOffice
+        - Успешную авторизацию в AdminOffice
+        """
         admin_office_authorization.visit(admin_base_url)
         admin_office_authorization.authorization.auth_admin_office()

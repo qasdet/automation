@@ -1,63 +1,95 @@
-from http_methods.post import post_request
-from faker import Faker
+"""
+Модуль устаревших API функций для работы с брендами.
 
-fake = Faker()
+.. deprecated::
+    Используйте :class:`admin_office.api_repositories.BrandRepository` вместо этого модуля.
 
+Этот модуль сохранен для обратной совместительности со старым кодом.
+Все новые тесты и компоненты должны использовать BrandRepository.
 
-def brand_creation(
-        brand_data: dict, user_office_token: str
-) -> str:
-    """Отправка запроса на сервер для создания нового клиента
-    Args:
-        brand_data: созданный словарь, который содержит данные, необходимые для заполнения обя-
-        зательных полей: name, naming, а также id клиента
-        user_office_token: токен авторизации в user-office
+Текущие устаревшие функции:
+    - delete_brand_by_id() -> Используйте BrandRepository.delete()
+    - get_count_of_brands() -> Используйте BrandRepository.get_count()
+    - brand_creation() -> Используйте BrandRepository.create()
 
-    Returns:
-        Создаёт бренд через graphql-запрос и возвращает id только что созданного бренда.
-    """
-    brand_creation_query = {
-        'operation_name': 'BrandCreate',
-        'variables': {
-            'data': {
-                'name': brand_data['name'],
-                'naming': brand_data['naming'],
-            }
-        },
-        'query': """mutation BrandCreate($clientID: ID, $data: BrandData!) {
-                     brandCreate(clientID: $clientID, data: $data) {id}}""",
-    }
-    result = post_request(brand_creation_query, user_office_token)
-    return result['data']['brandCreate']['id']
+Пример перехода на новый API:
+    # Старый код (deprecated):
+    >>> from admin_office.api_interactions.brands import delete_brand_by_id
+    >>> delete_brand_by_id(123, token)
+
+    # Новый код (рекомендуется):
+    >>> from admin_office.api_repositories import BrandRepository
+    >>> BrandRepository(token).delete("123")
+"""
+from admin_office.api_repositories import BrandRepository
 
 
 def delete_brand_by_id(id_brand: int, token: str) -> None:
-    """Удаление клиента
+    """
+    Удалить бренд по его ID.
+
+    .. deprecated::
+        Используйте :meth:`BrandRepository.delete()` вместо этого метода.
+
+    Вызывает метод delete() репозитория BrandRepository для удаления
+    бренда по строковому идентификатору.
 
     Args:
-        id_brand: id бренда
-        token: токен доступа
-    """
-    query = {
-        'operationName': 'adminBrandDelete',
-        'variables': {'id': f'{id_brand}'},
-        'query': 'mutation adminBrandDelete($id: ID!) {\n  adminBrandDelete(id: $id)\n}',
-    }
+        id_brand (int): Числовой идентификатор бренда для удаления
+        token (str): Токен авторизации для API запросов
 
-    response = post_request(query, token)
-    assert response == {'data': {'adminBrandDelete': True}}, 'Клиент не удален'
+    Raises:
+        Исключения от BrandRepository.delete() при неудаче
+
+    Example:
+        >>> delete_brand_by_id(123, "your_token_here")
+    """
+    BrandRepository(token).delete(str(id_brand))
 
 
 def get_count_of_brands(token: str) -> int:
-    """Получить количество записей
-    Args:
-        token: токен доступа
-    Returns:
-        Возвращается количество записей
     """
-    get_brands_query = {
-        "operationName": "adminBrands",
-        "query": "query adminBrands {adminBrands {id name}}",
-    }
-    rows = post_request(get_brands_query, token)['data']['adminBrands']
-    return len(rows)
+    Получить общее количество брендов в системе.
+
+    .. deprecated::
+        Используйте :meth:`BrandRepository.get_count()` вместо этого метода.
+
+    Возвращает количество всех брендов, доступных для текущего пользователя.
+
+    Args:
+        token (str): Токен авторизации для API запросов
+
+    Returns:
+        int: Общее количество брендов
+
+    Example:
+        >>> count = get_count_of_brands("your_token_here")
+        >>> print(f"Всего брендов: {count}")
+    """
+    return BrandRepository(token).get_count()
+
+
+def brand_creation(brand_data: dict, user_office_token: str) -> str:
+    """
+    Создать новый бренд с указанными данными.
+
+    .. deprecated::
+        Используйте :meth:`BrandRepository.create()` вместо этого метода.
+
+    Создает бренд через API и возвращает идентификатор созданного бренда.
+
+    Args:
+        brand_data (dict): Словарь с данными бренда.
+                          Ожидаемые ключи зависят от модели BrandRepository.
+        user_office_token (str): Токен авторизации пользователя UserOffice
+
+    Returns:
+        str: Идентификатор (ID) созданного бренда в виде строки
+
+    Example:
+        >>> data = {"naming": "Test Brand", "description": "Описание"}
+        >>> brand_id = brand_creation(data, "user_token")
+        >>> print(f"Создан бренд с ID: {brand_id}")
+    """
+    brand = BrandRepository(user_office_token).create(brand_data)
+    return brand.id

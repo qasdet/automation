@@ -1,8 +1,9 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
-from helper.linkshort import JiraLink as jira
 from helper.linkshort import AllureLink as case
+from helper.linkshort import JiraLink as jira
 from user_office.components.pages.mediaplan.create_mediaplan_page import (
     CreateMediaplanPage,
 )
@@ -63,5 +64,5 @@ class TestCreativeFrames:
         placement_page.digital_placement.creatives.click_creative_frame_form_submit()
         creative_frame_name_from_ui = placement_page.digital_placement.creatives.page.get_by_test_id(
             'creatives_creative_frame').inner_text()
-        assert creative_frame_name == creative_frame_name_from_ui, "Сгенерированное название рамки " \
-                                                                   "не совпадает с тем, что отображается в браузере"
+        expect(creative_frame_name == creative_frame_name_from_ui,
+               "Сгенерированное название рамки не совпадает с тем, что отображается в браузере").to_be_true()

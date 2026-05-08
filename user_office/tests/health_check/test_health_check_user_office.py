@@ -12,7 +12,15 @@ from user_office.components.pages.health_check.health_check_page import (
 
 
 class TestHealth:
-    @allure.title(test_title='Здоровье юзер офиса')
+    """
+    Набор тестов для проверки здоровья (health check) UserOffice.
+
+    Тестирует основные сценарии:
+    - Проверка авторизации в UserOffice
+    - Проверка отображения всех элементов health check страницы
+    """
+
+    @allure.title('Здоровье юзер офиса')
     @allure.severity(severity_level=allure.severity_level.CRITICAL)
     @allure.issue(jira.JIRA_LINK + 'MDP-3749')
     @allure.testcase(case.ALLURE_LINK + '12383489')
@@ -23,6 +31,14 @@ class TestHealth:
         health_check_page: HealthCheckPage,
         office_base_url: str,
     ) -> None:
+        """
+        Тест проверки здоровья UserOffice.
+
+        Проверяет:
+        - Успешный переход на страницу авторизации
+        - Успешную авторизацию в UserOffice
+        - Отображение всех текстовых элементов на health check странице
+        """
         user_office_authorization.visit(url=office_base_url)
         user_office_authorization.authorize.auth_user_office()
         health_check_page.health_user_office.check_all_text()

@@ -1,4 +1,4 @@
-from playwright.sync_api import Page
+from playwright.sync_api import Page, expect
 
 from admin_office.constants import LIMIT_OF_ROWS_ON_ONE_PAGE_IN_BRANDS
 from controller.button import Button
@@ -62,9 +62,7 @@ class Brands:
             self.paging.go_to_next_page()
             self.table.should_be_visible()
             second_page_text = self.table.inner_text()
-            assert (
-                first_page_text != second_page_text
-            ), 'Не смогли прейти на следующую страницу'
+            expect(first_page_text != second_page_text).to_be_true()
 
     def check_new_brand(self, data_brand: dict):
         """Проверяем, что запись добавлена

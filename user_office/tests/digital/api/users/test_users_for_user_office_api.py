@@ -1,5 +1,6 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from db_stuff.db_interactions.organizations_db_interactions import (
     get_organization_by_email,
@@ -34,6 +35,5 @@ class TestUsers:
         users_for_organization_api.sort(
             key=lambda dictionary: dictionary['login']
         )
-        assert (
-            users_for_organization_api == users_for_organization_db
-        ), 'Список пользователей через API не совпадает с ожидаемым из БД'
+        expect(users_for_organization_api == users_for_organization_db,
+               'Список пользователей через API не совпадает с ожидаемым из БД').to_be_true()

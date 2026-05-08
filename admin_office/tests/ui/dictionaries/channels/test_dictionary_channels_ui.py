@@ -12,6 +12,16 @@ data_channel = get_data_for_channel()
 
 @pytest.mark.usefixtures('authorization_in_admin_office_with_token')
 class TestsDictionaryChannels:
+    """
+    Набор тестов для проверки функциональности справочника Каналы.
+
+    Тестирует основные сценарии:
+    - Создание нового канала
+    - Редактирование канала через контекстное меню
+    - Редактирование канала через клик на ячейку
+    - Отмена редактирования
+    """
+
     @staticmethod
     @pytest.mark.order(1)
     @pytest.mark.regress()
@@ -23,7 +33,15 @@ class TestsDictionaryChannels:
             admin_channels_page: AdminOfficeChannelsPage,
             authorization_in_admin_office_with_token: str,
     ) -> None:
-        """Создание записи в Справочнике Каналы"""
+        """
+        Тест создания нового канала.
+
+        Проверяет:
+        - Открытие формы создания канала
+        - Заполнение всех полей данными
+        - Создание канала
+        - Проверка отображения созданного канала в списке
+        """
         admin_channels_page.go_to_channels()
         admin_channels_page.channels.open_the_channel_creation_form()
         admin_channels_page.channel_card.fill_all_fields(**data_channel)
@@ -43,7 +61,15 @@ class TestsDictionaryChannels:
             admin_channels_page: AdminOfficeChannelsPage,
             authorization_in_admin_office_with_token: str,
     ) -> None:
-        """Редактирование записи в Справочнике Каналы через контекстное меню"""
+        """
+        Тест редактирования канала через контекстное меню.
+
+        Проверяет:
+        - Открытие формы редактирования через контекстное меню
+        - Изменение обязательных полей
+        - Сохранение изменений
+        - Проверка что данные обновились
+        """
         admin_channels_page.channels.open_the_channel_for_editing_through_context_menu(
             text_row=data_channel['code']
         )
@@ -54,7 +80,7 @@ class TestsDictionaryChannels:
             data_channel['naming'],
         )
         admin_channels_page.channel_card.click_save_channel_button()
-        admin_channels_page.page.reload()
+        admin_channels_page.reload()
         admin_channels_page.channels.check_new_channel(data_channel)
 
     @staticmethod
@@ -68,7 +94,15 @@ class TestsDictionaryChannels:
             admin_channels_page: AdminOfficeChannelsPage,
             authorization_in_admin_office_with_token: str,
     ) -> None:
-        """Редактирование записи через контекстное меню в Справочнике Каналы"""
+        """
+        Тест редактирования канала через клик на ячейку.
+
+        Проверяет:
+        - Открытие формы редактирования кликом по ячейке
+        - Изменение обязательных полей
+        - Сохранение изменений
+        - Проверка что данные обновились
+        """
         admin_channels_page.channels.open_the_channel_for_editing(
             text_row=data_channel['name']
         )
@@ -79,7 +113,7 @@ class TestsDictionaryChannels:
             data_channel['naming'],
         )
         admin_channels_page.channel_card.click_save_channel_button()
-        admin_channels_page.page.reload()
+        admin_channels_page.reload()
         admin_channels_page.channels.check_new_channel(data_channel)
 
     @staticmethod
@@ -93,7 +127,15 @@ class TestsDictionaryChannels:
             admin_channels_page: AdminOfficeChannelsPage,
             authorization_in_admin_office_with_token: str,
     ) -> None:
-        """Отмена редактирование записи в Справочнике Каналы"""
+        """
+        Тест отмены редактирования канала.
+
+        Проверяет:
+        - Открытие формы редактирования
+        - Изменение полей
+        - Нажатие кнопки отмены и подтверждение отмены
+        - Проверка что данные не изменились
+        """
         admin_channels_page.channels.open_the_channel_for_editing(
             text_row=data_channel['name']
         )

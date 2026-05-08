@@ -1,6 +1,8 @@
 import re
+
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from db_stuff.db_interactions.placement_statuses_db_interactions import (
     get_name_status_by_id_of_placements_status_id_in_the_placement
@@ -69,14 +71,14 @@ class TestApproveMultiplePlacement:
             authorization_in_user_office_with_token
         ).get_mplan_status(mplan_id=mplan_data["data"]["mplanPlanningCreate"]["id"])
         match = re.findall(r"Утвержден", str(mediaplan_status), re.I)
-        assert match == ["Утвержден"]
+        expect(match == ["Утвержден"]).to_be_true()
         print(f'Медиаплан {mplan_data["data"]["mplanPlanningCreate"]["id"]} в статусе: {match}')
 
         for i in approve_list:
             new_placement_data = PlacementQueriesAPI(authorization_in_user_office_with_token).get_placement_by_id(
                 i)
             match = re.findall(r"Уточнение настроек", str(new_placement_data), re.I)
-            assert match == ["Уточнение настроек"]
+            expect(match == ["Уточнение настроек"]).to_be_true()
             print(f"Размещение {approve_list[0]} в статусе: {match}")
 
     @staticmethod
@@ -135,11 +137,11 @@ class TestApproveMultiplePlacement:
             authorization_in_user_office_with_token
         ).get_mplan_status(mplan_id=mplan_data["data"]["mplanPlanningCreate"]["id"])
         match = re.findall(r"Утвержден", str(mediaplan_status), re.I)
-        assert match == ["Утвержден"]
+        expect(match == ["Утвержден"]).to_be_true()
         print(f'Медиаплан {mplan_data["data"]["mplanPlanningCreate"]["id"]} в статусе: {match}')
 
         for i in approve_list:
             status = get_name_status_by_id_of_placements_status_id_in_the_placement(i)
             match = re.findall(r"Уточнение настроек", str(status), re.I)
-            assert match == ["Уточнение настроек"]
+            expect(match == ["Уточнение настроек"]).to_be_true()
             print(f"Размещение {approve_list} в статусе: {match}")

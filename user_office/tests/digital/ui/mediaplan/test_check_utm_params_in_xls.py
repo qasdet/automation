@@ -1,5 +1,6 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from openpyxl.reader.excel import load_workbook
 from helper.array_helper import create_dictionary_from_list
@@ -112,5 +113,5 @@ class TestExportMediaPlanPlacementDone:
         get_all_utms = whole_url_result.split('?')[1].split('&')
         mts_hash = create_dictionary_from_list(get_all_utms)['utm_mts']
         final_dict_from_ui = {list_of_keys[0]: mts_hash, list_of_keys[1]: whole_url_result}
-        assert final_dict_from_ui == final_dict_from_xls, "Значения из личного кабинета не совпадают со значениями " \
-                                                          "в xls-файле"
+        expect(final_dict_from_ui == final_dict_from_xls,
+               "Значения из личного кабинета не совпадают со значениями в xls-файле").to_be_true()

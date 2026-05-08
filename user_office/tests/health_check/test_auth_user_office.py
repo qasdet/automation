@@ -12,6 +12,13 @@ from user_office.components.pages.profile.mediaplan_profile_page import (
 
 
 class TestAuthUserOffice:
+    """
+    Набор тестов для проверки авторизации в UserOffice.
+
+    Тестирует основные сценарии:
+    - Проверка авторизации в UserOffice
+    """
+
     @allure.title('Авторизация в Юзер Офисе')
     def test_auth_user_office(
         self,
@@ -20,5 +27,12 @@ class TestAuthUserOffice:
         mediaplan_profile_page: MediaPlanProfilePage,
         office_base_url: str,
     ):
+        """
+        Тест проверки авторизации в UserOffice.
+
+        Проверяет:
+        - Успешный переход на страницу авторизации
+        - Успешную авторизацию в UserOffice
+        """
         user_office_authorization.visit(office_base_url)
         user_office_authorization.authorize.auth_user_office()

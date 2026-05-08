@@ -10,6 +10,14 @@ from helper.linkshort import JiraLink as jira
 
 
 class TestHealth:
+    """
+    Набор тестов для проверки здоровья (health check) AdminOffice.
+
+    Тестирует основные сценарии:
+    - Проверка авторизации в AdminOffice
+    - Проверка отображения всех элементов sidebar
+    """
+
     @staticmethod
     @allure.title('Здоровье админ офиса')
     @allure.severity(allure.severity_level.CRITICAL)
@@ -21,6 +29,14 @@ class TestHealth:
         admin_home_page: AdminOfficeHomePage,
         admin_base_url: str,
     ):
+        """
+        Тест проверки здоровья AdminOffice.
+
+        Проверяет:
+        - Успешный переход на страницу авторизации
+        - Успешную авторизацию в AdminOffice
+        - Отображение всех текстовых элементов sidebar
+        """
         admin_office_authorization.visit(admin_base_url)
         admin_office_authorization.authorization.auth_admin_office()
         admin_home_page.side_bar.check_all_text()

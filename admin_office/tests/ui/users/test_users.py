@@ -35,6 +35,14 @@ def life_cycle_of_the_user_with_all_field():
 
 @pytest.mark.usefixtures('authorization_in_admin_office_with_token')
 class TestsUsers:
+    """
+    Набор тестов для проверки функциональности справочника Пользователи.
+
+    Тестирует основные сценарии:
+    - Просмотр списка пользователей с пагинацией
+    - Создание нового пользователя
+    """
+
     @staticmethod
     @pytest.mark.smoke
     @allure.title('Страница Пользователи')
@@ -42,7 +50,14 @@ class TestsUsers:
             admin_users_page: AdminOfficeUsersPage,
             authorization_in_admin_office_with_token: str,
     ):
-        """Страница Пользователи"""
+        """
+        Тест проверки отображения справочника пользователей с пагинацией.
+
+        Проверяет:
+        - Общее количество пользователей соответствует API
+        - Пагинация корректно работает при переходе на вторую страницу
+        - Количество строк на второй странице соответствует ожиданиям
+        """
         token = authorization_in_admin_office_with_token
         admin_users_page.go_to_users()
         count_all_rows = get_count_of_users(token)
@@ -62,7 +77,15 @@ class TestsUsers:
             admin_users_page: AdminOfficeUsersPage,
             life_cycle_of_the_user_with_all_field,
     ):
-        """Добавление пользователя"""
+        """
+        Тест создания нового пользователя с заполнением всех полей.
+
+        Проверяет полный цикл создания пользователя:
+        - Открытие формы создания через sidebar
+        - Заполнение всех полей данными из фикстуры
+        - Сохранение пользователя
+        - Проверка отображения созданного пользователя в списке
+        """
         data_user = life_cycle_of_the_user_with_all_field
         admin_users_page.side_bar.check_users_link()
         admin_users_page.users.open_the_user_creation_form()

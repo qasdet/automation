@@ -1,6 +1,7 @@
 import allure
 import pytest
 from openpyxl.reader.excel import load_workbook
+from playwright.sync_api import expect
 
 from helper import date_converter
 from helper.get_data_from_excel import (
@@ -138,11 +139,6 @@ class TestExportMediaPlanPlacementDone:
             placement_site,
             placement_seller,
         ]
-        assert sorted(list_of_values_from_api) == sorted(
+        expect(sorted(list_of_values_from_api) == sorted(
             list_of_values_from_xls
-        ), (
-            'Data from Placement '
-            "with 'Done' status"
-            ' form and data from xls'
-            ' are not the same'
-        )
+        ), 'Data from Placement with Done status form and data from xls are not the same').to_be_true()

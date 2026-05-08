@@ -1,15 +1,13 @@
-import unittest
-
 from datetime import date
+
 from playwright.sync_api import Page, expect
 from controller.button import Button
 from controller.drop_down_list import DropDownList
 from controller.input import Input
+from controller.link import Link
 from controller.list_item import ListItem
 from controller.table_new import Table
 from controller.title import Title
-from controller.link import Link
-from controller.context_menu import ContextMenu
 from db_stuff.db_interactions.widget_mplan_unique_number_db_interactions import widget_in_mplan_unique_number
 from helper.default_dates import (
     get_default_campaign_begin_date_for_ui,
@@ -22,11 +20,10 @@ from db_stuff.db_interactions.brands_db_interactions import get_brand_name_by_id
 from db_stuff.db_interactions.products_db_interactions import get_product_name_by_id
 
 
-class DigitalCampaign(unittest.TestCase):
+class DigitalCampaign:
     """Модель страницы карточки digital кампании"""
 
     def __init__(self, page: Page) -> None:
-        super().__init__()
         self.page = page
         self.table = Table(page, locator='//table', name='Таблица медиапланов')
         self.first_notification_close_button = Button(
@@ -194,39 +191,33 @@ class DigitalCampaign(unittest.TestCase):
         self.about_campaign.hover()
         self.about_campaign.matching_by_text(text='Подробнее о кампании')
         self.mediaplan_title.hover()
-        text = self.page.get_by_test_id('campaign_widget_mplan_title').inner_text()
-        self.assertEqual(first=text[:9], second='Медиаплан', msg=f'Заголовок {text} не найден')
+        self.mediaplan_title.should_contain_text('Медиаплан')
         self.campaign_thermometer.hover()
         self.campaign_name.hover()
         self.campaign_name.should_be_visible()
         self.connected.hover()
         self.campaign_status.hover()
-        self.campaign_status.has_texts(constants.APPROVED_STATUS)
-        self.connected.has_texts(text='Подключения')
+        self.campaign_status.should_contain_text(constants.APPROVED_STATUS)
+        self.connected.should_contain_text('Подключения')
         self.platform.hover()
-        self.platform.has_texts(text='Площадки')
+        self.platform.should_contain_text('Площадки')
         self.post_click.hover()
-        self.post_click.has_texts(text='Post-click tool')
+        self.post_click.should_contain_text('Post-click tool')
         self.verify_tool.hover()
-        self.verify_tool.has_texts(text='Verification tool')
+        self.verify_tool.should_contain_text('Verification tool')
         self.tracker_tool.hover()
-        self.tracker_tool.has_texts(text='Tracker tool')
+        self.tracker_tool.should_contain_text('Tracker tool')
         self.campaign_thermometer.should_be_visible()
         self.campaign_widget_setting_placements.hover()
         self.campaign_widget_setting_placements.should_be_visible()
-        self.campaign_widget_setting_placements.has_texts(text='Отличная работа! Все размещения настроены')
+        self.campaign_widget_setting_placements.should_contain_text('Отличная работа! Все размещения настроены')
         self.campaign_widget_publish_placements.hover()
         self.campaign_widget_publish_placements.should_be_visible()
-        widget_placement = self.page.get_by_test_id('campaign_widget_publish_placements').inner_text()
-        self.assertEqual(first=widget_placement[:-5], second='В рамках кампании осталось опубликовать размещений',
-                         msg=f'Заголовок {widget_placement} не найден')
+        self.campaign_widget_publish_placements.should_contain_text('В рамках кампании осталось опубликовать размещений')
 
     def check_number_order_no_in_mplan_widget(self, mplan_id):
         widget = widget_in_mplan_unique_number(mplan_id)
-        text = self.page.get_by_test_id('campaign_widget_mplan_title').inner_text()
-        widget == text[11:]
-        self.assertEqual(first=text[11:], second=widget,
-                         msg=f'Уникальный номер {widget} не соответствует отображаемому')
+        self.mediaplan_title.should_contain_text(widget)
 
     def open_about_campaign(self) -> None:
         """Открыть страницу просмотра кампании"""
@@ -305,8 +296,7 @@ class DigitalCampaign(unittest.TestCase):
         self.campaign_period.should_have_text(cell_title[5][0][0])
         self.campaign_client.should_have_text(cell_title[0][0][0])
         self.about_campaign.click()
-        goals = self.page.locator(self.campaign_goal).first.is_visible()
-        assert goals == True
+        self.campaign_goal.should_be_visible()
 
     def check_new_mediaplan_planning_status(self) -> None:
         """Проверка создания медиаплана на странице кампании. Статус Планирование"""
@@ -726,8 +716,7 @@ class DigitalCreateCampaign:
         self.add_conditions_btn.hover()
         self.add_conditions_btn.click()
         self.conditions_description_text_area.fill(constants.CONDITIONS_DESCRIPTION_TEXT)
-        text = self.page.get_by_test_id('dialog_conditions_description').inner_html()
-        assert text == constants.CONDITIONS_DESCRIPTION_TEXT
+        expect(self.page.get_by_test_id('dialog_conditions_description')).to_have_text(constants.CONDITIONS_DESCRIPTION_TEXT)
         self.save_description_btn.click()
 
     def add_geo_targeting_description(self) -> None:
@@ -735,8 +724,7 @@ class DigitalCreateCampaign:
         self.add_geo_targeting_btn.hover()
         self.add_geo_targeting_btn.click()
         self.geo_targeting_description_text_area.fill(constants.GEO_TARGETING_DESCRIPTION_TEXT)
-        text = self.page.get_by_test_id('dialog_geography_description').inner_html()
-        assert text == constants.GEO_TARGETING_DESCRIPTION_TEXT
+        expect(self.page.get_by_test_id('dialog_geography_description')).to_have_text(constants.GEO_TARGETING_DESCRIPTION_TEXT)
         self.save_description_btn.click()
 
     def add_target_audience_description(self) -> None:
@@ -744,8 +732,7 @@ class DigitalCreateCampaign:
         self.add_target_audience_btn.hover()
         self.add_target_audience_btn.click()
         self.target_audience_description_text_area.fill(constants.TARGET_AUDIENCE_DESCRIPTION_TEXT)
-        text = self.page.get_by_test_id('dialog_target_audience_description').inner_html()
-        assert text == constants.TARGET_AUDIENCE_DESCRIPTION_TEXT
+        expect(self.page.get_by_test_id('dialog_target_audience_description')).to_have_text(constants.TARGET_AUDIENCE_DESCRIPTION_TEXT)
         self.save_description_btn.click()
 
     def create_draft_campaign_full(self, digital_test_data: dict) -> None:

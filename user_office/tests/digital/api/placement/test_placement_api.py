@@ -1,6 +1,9 @@
 import re
+
 import allure
 import pytest
+from playwright.sync_api import expect
+
 from helper.linkshort import AllureLink as case
 from helper.linkshort import JiraLink as jira
 from user_office.components.pages.campaigns.campaign_page import CampaignPage
@@ -98,7 +101,7 @@ class TestPublicationPlacement:
             authorization_in_user_office_with_token
         ).get_mplan_status(mplan_id=mplan_data["data"]["mplanPlanningCreate"]["id"])
         match = re.findall(r"Утвержден", str(mediaplan_status), re.I)
-        assert match == ["Утвержден"]
+        expect(match == ["Утвержден"]).to_be_true()
         print(f"Медиаплан в статусе: {match}")
         ConnectionSettingsMutationsAPI(
             authorization_in_user_office_with_token
@@ -114,14 +117,14 @@ class TestPublicationPlacement:
             authorization_in_user_office_with_token
         ).get_placement_by_id(placement_data["data"]["placementCreate"]["id"])
         match = re.findall(r"Опубликовано", str(new_placement_data), re.I)
-        assert match == ["Опубликовано"]
+        expect(match == ["Опубликовано"]).to_be_true()
         print(f"Размещение в статусе: {match}")
         campaign_data = CampaignsQueriesAPI(
             authorization_in_user_office_with_token
         ).get_campaign_by_id(campaign_id)
         print(campaign_data)
         match = re.findall(r'Опубликована', str(campaign_data), re.I)
-        assert match == ['Опубликована']
+        expect(match == ['Опубликована']).to_be_true()
         print(f'Рекламная кампания в статусе: {match}')
 
     @staticmethod
@@ -187,11 +190,9 @@ class TestPublicationPlacement:
             campaign_id
         )
         match = re.findall(r'Частично опубликована', str(campaign_status), re.I)
-        print(match)
-        assert match == [campaign_status['data']['campaigns'][0]['status']['name']]
+        expect(match == [campaign_status['data']['campaigns'][0]['status']['name']]).to_be_true()
         mediaplan_status = MplanQueriesAPI(authorization_in_user_office_with_token).get_mplan_status(
             mplan_id=mplan_data['data']['mplanPlanningCreate']['id']
         )
         match = re.findall(r'Утвержден', str(mediaplan_status), re.I)
-        print(match)
-        assert match == ['Утвержден']
+        expect(match == ['Утвержден']).to_be_true()

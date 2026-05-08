@@ -101,3 +101,11 @@ class Products:
             number_cell=4,
             check_text=data_product['organization'],
         )
+
+    def open_product_card_by_id(self, product_id: str) -> None:
+        """Открыть карточку продукта по ID
+
+        Args:
+            product_id: ID продукта для открытия карточки
+        """
+        self.table.row_by_contains_text(product_id).locator('a').click()

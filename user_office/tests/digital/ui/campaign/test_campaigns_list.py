@@ -13,8 +13,16 @@ from user_office.constants import EMAIL_ORGANIZATION
 
 @pytest.mark.usefixtures('authorization_in_user_office_with_token')
 class TestCampaignsList:
+    """
+    Набор тестов для проверки функциональности страницы списка кампаний.
+
+    Тестирует основные сценарии:
+    - Просмотр списка кампаний с проверкой элементов интерфейса
+    - Отображение co-brands в списке кампаний и на странице кампании
+    """
+
     @staticmethod
-    @allure.title(test_title='Верификация страницы списка кампаний и проверка элементов списка')
+    @allure.title('Верификация страницы списка кампаний и проверка элементов списка')
     @allure.severity(severity_level=allure.severity_level.CRITICAL)
     @allure.issue(jira.JIRA_LINK + 'MDP-5138')
     @allure.testcase(case.ALLURE_LINK + '121241?treeId=289')
@@ -24,7 +32,15 @@ class TestCampaignsList:
             campaigns_list_page: CampaignsListPage,
             office_base_url: str,
     ) -> None:
+        """
+        Тест проверки отображения страницы списка кампаний.
 
+        Проверяет:
+        - Загрузку страницы списка кампаний
+        - Получение данных кампаний из базы данных
+        - Проверку элементов списка кампаний
+        - Соответствие данных в UI и в базе данных
+        """
         campaigns_list_page.visit(office_base_url)
         organization_id = get_organization_by_email(EMAIL_ORGANIZATION).id
         campaigns_data = get_campaigns_for_campaigns_list(organization_id)
@@ -32,7 +48,7 @@ class TestCampaignsList:
         campaigns_list_page.digital_campaigns_list.check_campaigns_list(campaigns_data)
 
     @staticmethod
-    @allure.title(test_title='Тест отображения ко брендов в списке кампаний и на странице кампании')
+    @allure.title('Тест отображения co-brands в списке кампаний и на странице кампании')
     @allure.severity(severity_level=allure.severity_level.CRITICAL)
     @allure.issue(jira.JIRA_LINK + 'MDP-5138')
     @allure.testcase(case.ALLURE_LINK + '320154?treeId=289')
@@ -44,6 +60,14 @@ class TestCampaignsList:
             digital_test_data,
             office_base_url: str
     ) -> None:
+        """
+        Тест проверки отображения co-brands в кампании.
+
+        Проверяет:
+        - Создание кампании с двумя co-brands через API
+        - Отображение co-brands в списке кампаний
+        - Открытие кампании и проверку co-brands на странице кампании
+        """
         CampaignsMutationsAPI(authorization_in_user_office_with_token).create_campaign_part_with_two_co_brands(
             digital_test_data
         )

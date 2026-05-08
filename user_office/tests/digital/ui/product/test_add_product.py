@@ -20,14 +20,25 @@ from user_office.components.pages.placement.placement_page import PlacementPage
 
 @pytest.mark.usefixtures('authorization_in_user_office')
 class TestCreateMediaPlan:
-    @pytest.mark.skip()
+    """
+    Набор тестов для проверки функциональности создания медиаплана.
+
+    Тестирует основные сценарии:
+    - Создание кампании с двумя продуктами
+    - Создание медиаплана
+    - Добавление размещения с бюджетной метрикой
+
+    Примечание: Тест отмечен как skip до переработки проверок.
+    """
+
+    @staticmethod
+    @pytest.mark.skip(reason='MDP-2504: Тест требует переработки проверок создания')
     @allure.story('https://jira.mts.ru/browse/MDP-2575')
     @allure.issue('https://jira.mts.ru/browse/MDP-2504')
     @allure.testcase('#185965')
     @allure.description('Смоук тест для создания медиаплана')
     @allure.title('Смоук-тест создание Медиаплана')
     @allure.severity(allure.severity_level.NORMAL)
-    @staticmethod
     def test_create_media_plan(
         user_office_authorization: AuthorizationPage,
         campaign_page: CampaignPage,
@@ -41,6 +52,17 @@ class TestCreateMediaPlan:
         data_for_targeting,
         office_base_url: str,
     ) -> None:
+        """
+        Тест создания медиаплана с размещением.
+
+        Проверяет:
+        - Авторизацию в UserOffice
+        - Создание кампании с полными данными и двумя продуктами
+        - Открытие страницы создания медиаплана
+        - Создание медиаплана с таргетингом
+        - Добавление размещения со статусом completed и бюджетной метрикой
+        - Проверку отображения нового размещения в медиаплане
+        """
         user_office_authorization.visit(url=office_base_url)
         campaigns_list_page.digital_campaigns_list.click_create_campaign_button()
         create_campaign_page.digital_create_campaign.create_campaign_full(
@@ -60,4 +82,3 @@ class TestCreateMediaPlan:
         mediaplan_page.digital_mediaplan.check_new_placement_completed_status(
             data_for_placement
         )
-        # TODO: переделать тест, это полностью скопированый тест на создание медиаплана без проверки создания

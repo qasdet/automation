@@ -1,5 +1,6 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from db_stuff.db_interactions.integration_token_table_interaction import get_integration_token_id
 from helper.linkshort import AllureLink as case
@@ -72,10 +73,14 @@ class TestReportDigitalConnections:
         connections = ConnectionSettingsQueriesAPI(authorization_in_user_office_with_token).get_report_connection_widget(
             mplan_data["data"]["mplanPlanningCreate"]["id"]
         )
-        assert connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3', "значение отличается"
-        assert connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3', "значение отличается"
-        assert connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3', "значение отличается"
-        assert connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3', "значение отличается"
+        expect(connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3',
+               "значение отличается").to_be_true()
+        expect(connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3',
+               "значение отличается").to_be_true()
+        expect(connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3',
+               "значение отличается").to_be_true()
+        expect(connections['data']['reportDigitalConnections']['data'][0]['metrics'][3] == '3',
+               "значение отличается").to_be_true()
 
     @staticmethod
     @pytest.mark.regress()
@@ -140,7 +145,11 @@ class TestReportDigitalConnections:
         connections = ConnectionSettingsQueriesAPI(authorization_in_user_office_with_token).get_report_connection_widget(
             mplan_data["data"]["mplanPlanningCreate"]["id"]
         )
-        assert connections['data']['reportDigitalConnections']['data'][0]['metrics'][1] == '2', "значение отличается"
-        assert connections['data']['reportDigitalConnections']['data'][1]['metrics'][2] == '1', "значение отличается"
-        assert connections['data']['reportDigitalConnections']['data'][2]['metrics'][3] == '2', "значение отличается"
-        assert connections['data']['reportDigitalConnections']['data'][3]['metrics'][2] == '2', "значение отличается"
+        expect(connections['data']['reportDigitalConnections']['data'][0]['metrics'][1] == '2',
+               "значение отличается").to_be_true()
+        expect(connections['data']['reportDigitalConnections']['data'][1]['metrics'][2] == '1',
+               "значение отличается").to_be_true()
+        expect(connections['data']['reportDigitalConnections']['data'][2]['metrics'][3] == '2',
+               "значение отличается").to_be_true()
+        expect(connections['data']['reportDigitalConnections']['data'][3]['metrics'][2] == '2',
+               "значение отличается").to_be_true()

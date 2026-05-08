@@ -1,5 +1,6 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
 from helper.linkshort import AllureLink as case
 from helper.linkshort import JiraLink as jira
@@ -35,20 +36,14 @@ class TestMplanAPI:
         mplan_data = MplanQueriesAPI(token).get_mplan_by_id(
             created_mplan_data['data']['mplanDraftCreate']['id']
         )
-        assert (
-                created_mplan_data['data']['mplanDraftCreate']
-                == mplan_data['data']['mplans'][0]
-        )
+        expect(created_mplan_data['data']['mplanDraftCreate'] == mplan_data['data']['mplans'][0]).to_be_true()
         updated_mplan_data = MplansMutationsAPI(token).update_draft_mplan(
             campaign_id, created_mplan_data['data']['mplanDraftCreate']['id'], digital_test_data
         )
         new_mplan_data = MplanQueriesAPI(token).get_mplan_by_id(
             created_mplan_data['data']['mplanDraftCreate']['id']
         )
-        assert (
-                updated_mplan_data['data']['mplanDraftSave']
-                == new_mplan_data['data']['mplans'][0]
-        )
+        expect(updated_mplan_data['data']['mplanDraftSave'] == new_mplan_data['data']['mplans'][0]).to_be_true()
 
     @staticmethod
     @pytest.mark.regress()
@@ -70,8 +65,5 @@ class TestMplanAPI:
         mplan_data = MplanQueriesAPI(token).get_mplan_by_id(
             created_mplan_data['data']['mplanPlanningCreate']['id']
         )
-        assert (
-                created_mplan_data['data']['mplanPlanningCreate']
-                == mplan_data['data']['mplans'][0]
-        )
+        expect(created_mplan_data['data']['mplanPlanningCreate'] == mplan_data['data']['mplans'][0]).to_be_true()
 

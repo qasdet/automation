@@ -11,16 +11,35 @@ from helper.linkshort import JiraLink as jira
 
 @pytest.mark.usefixtures('authorization_in_admin_office_with_token')
 class TestInstruments:
+    """
+    Набор тестов для проверки функциональности справочника Инструменты.
+
+    Тестирует основные сценарии:
+    - Просмотр записей инструментов разных типов (VERIFIER, POSTCLICK, TRACKER)
+    - Проверка соответствия данных в UI и API
+    """
+
     @staticmethod
     @pytest.mark.smoke
     @allure.title('Просмотр записей в справочнике Инструменты')
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '131399')
     def test_view_instruments(
-            admin_base_url: str,
             admin_instruments_page: AdminOfficeInstrumentsPage,
             authorization_in_admin_office_with_token: str,
     ):
+        """
+        Тест проверки отображения инструментов всех типов.
+
+        Проверяет:
+        - Переход на страницу инструментов
+        - Получение списка verifier инструментов из API
+        - Проверку отображения verifier инструментов в UI
+        - Получение списка postclick инструментов из API
+        - Проверку отображения postclick инструментов в UI
+        - Получение списка tracker инструментов из API
+        - Проверку отображения tracker инструментов в UI
+        """
         token = authorization_in_admin_office_with_token
         admin_instruments_page.go_to_instruments()
 

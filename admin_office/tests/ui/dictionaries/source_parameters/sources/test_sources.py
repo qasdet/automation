@@ -38,7 +38,15 @@ data_source = {
 def clean_up_sources_data(
         authorization_in_admin_office_with_token,
 ):
-    """ Удаляет данные после выполнения всех тестов """
+    """
+    Фикстура для очистки данных об источниках после выполнения тестов.
+
+    Args:
+        authorization_in_admin_office_with_token: Токен авторизации
+
+    Yields:
+        None
+    """
     yield
     source_id = get_source_id_by_naming(data_source['naming'])
     if source_id:
@@ -47,16 +55,33 @@ def clean_up_sources_data(
 
 @pytest.mark.usefixtures('authorization_in_admin_office_with_token')
 class TestSources:
+    """
+    Набор тестов для проверки функциональности справочника Площадки (Sources).
+
+    Тестирует основные сценарии:
+    - Просмотр списка площадок с пагинацией
+    - Создание новой площадки
+    - Редактирование площадки через контекстное меню
+    - Редактирование площадки с оставлением только обязательных полей
+    """
+
     @staticmethod
     @pytest.mark.smoke
     @allure.title('Просмотр записей в справочнике Площадки')
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '139743')
     def test_view_sources(
-            admin_base_url: str,
             admin_sources_page: AdminOfficeSourcesPage,
             authorization_in_admin_office_with_token: str,
     ):
+        """
+        Тест проверки отображения справочника площадок с пагинацией.
+
+        Проверяет:
+        - Общее количество площадок соответствует API
+        - Пагинация корректно работает при переходе на вторую страницу
+        - Количество строк на второй странице соответствует ожиданиям
+        """
         token = authorization_in_admin_office_with_token
         admin_sources_page.go_to_sources()
         count_all_rows = len(get_admin_sources(token))
@@ -72,7 +97,6 @@ class TestSources:
         admin_sources_page.sources.check_quantity_of_sources(
             count_rows_in_second_page
         )
-        admin_sources_page.visit(admin_base_url + "/dictionaries/sources")
 
     @staticmethod
     @pytest.mark.smoke
@@ -80,17 +104,25 @@ class TestSources:
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '210844')
     def test_create_source(
-            admin_base_url: str,
             admin_sources_page: AdminOfficeSourcesPage,
-            authorization_in_admin_office_with_token: str,
     ):
-        admin_sources_page.visit(admin_base_url + "/dictionaries/sources")
+        """
+        Тест создания новой площадки.
+
+        Проверяет:
+        - Переход на страницу площадок
+        - Открытие формы создания
+        - Заполнение всех полей
+        - Создание площадки
+        - Проверку отображения созданной площадки в списке
+        """
+        admin_sources_page.go_to_sources()
         admin_sources_page.sources.click_create_new_source()
         admin_sources_page.sources_card.sources_fill_all_fields(**data_source)
         admin_sources_page.sources_card.click_sources_button_create()
         created_source_id = str(get_source_id_by_naming(data_source['naming']))
         data_source['id'] = created_source_id
-        admin_sources_page.sources.page.reload(wait_until='load')
+        admin_sources_page.reload()
         admin_sources_page.sources.check_new_source(data_source)
 
     @staticmethod
@@ -99,22 +131,30 @@ class TestSources:
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '130885')
     def test_edit_source_context_menu(
-            admin_base_url: str,
             admin_sources_page: AdminOfficeSourcesPage,
-            authorization_in_admin_office_with_token: str,
     ):
+        """
+        Тест редактирования площадки через контекстное меню.
+
+        Проверяет:
+        - Открытие контекстного меню строки
+        - Выбор пункта "Редактировать"
+        - Изменение названия и URL
+        - Изменение статуса на "Приостановлен"
+        - Сохранение изменений
+        - Проверку что данные обновились
+        """
         admin_sources_page.go_to_sources()
         created_source_id = str(get_source_id_by_naming(data_source['naming']))
-        admin_sources_page.sources.page.get_by_role('row', name=created_source_id).get_by_role(
-            'button').click()
-        admin_sources_page.sources.page.get_by_role("button", name="Редактировать").click()
+        admin_sources_page.sources.table.open_menu_action_in_row_by_contains_text(created_source_id)
+        admin_sources_page.sources.table.click_item_menu_action('Редактировать')
         data_source['name'] = data_source['name'] + 'ed'
         data_source['url'] = 'https://mts.ru'
         admin_sources_page.sources_card.fill_sources_name_field(data_source['name'])
         admin_sources_page.sources_card.fill_sources_url_field(data_source['url'])
         admin_sources_page.sources_card.fill_sources_status_dropdown('Приостановлен')
         admin_sources_page.sources_card.click_sources_button_create()
-        admin_sources_page.sources.page.reload(wait_until='load')
+        admin_sources_page.reload()
         admin_sources_page.sources.check_new_source(data_source)
 
     @staticmethod
@@ -123,23 +163,34 @@ class TestSources:
     @allure.story(jira.JIRA_LINK + 'MDP-1166')
     @allure.testcase(case.ALLURE_LINK + '139775')
     def test_edit_by_leave_mandatory_fields_only(
-            admin_base_url: str,
             admin_sources_page: AdminOfficeSourcesPage,
             authorization_in_admin_office_with_token: str,
             clean_up_sources_data,
     ):
+        """
+        Тест редактирования площадки с оставлением только обязательных полей.
+
+        Проверяет:
+        - Открытие формы редактирования
+        - Снятие чекбоксов adset и auto_gather
+        - Удаление всех sizes
+        - Удаление всех buy_types
+        - Сохранение площадки
+        - Проверку отображения площадки в списке
+        - Удаление площадки
+        - Проверку что площадка удалена из системы
+        """
         token = authorization_in_admin_office_with_token
         admin_sources_page.go_to_sources()
         created_source_id = str(get_source_id_by_naming(data_source['naming']))
-        admin_sources_page.sources.page.get_by_role('row', name=created_source_id).get_by_role(
-            'button').click()
-        admin_sources_page.sources.page.get_by_role("button", name="Редактировать").click()
+        admin_sources_page.sources.table.open_menu_action_in_row_by_contains_text(created_source_id)
+        admin_sources_page.sources.table.click_item_menu_action('Редактировать')
         admin_sources_page.sources_card.click_sources_adset_checkbox()
         admin_sources_page.sources_card.click_sources_auto_gather_checkbox()
         admin_sources_page.sources_card.click_sources_sizes_button_delete()
         admin_sources_page.sources_card.click_sources_remove_button_buy_types()
         admin_sources_page.sources_card.click_sources_button_create()
-        admin_sources_page.sources.page.reload(wait_until='load')
+        admin_sources_page.reload()
         admin_sources_page.sources.check_new_source(data_source)
         delete_source_by_id(created_source_id)
         assert not get_specific_source_by_id(created_source_id, token), "Кажется, после теста осталось что-то лишнее"

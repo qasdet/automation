@@ -1,85 +1,169 @@
+"""
+Базовый класс для всех Page Objects в User Office.
+
+Этот модуль является точкой входа для всех страниц приложения User Office.
+Каждая страница наследуется от BasePage и получает общий функционал.
+
+Использование:
+    class CampaignPage(BasePage):
+        def __init__(self, page: Page) -> None:
+            super().__init__(page)
+            self.campaign_model = CampaignModel(page)
+
+Основные возможности:
+    - Управление Playwright Page через self.page
+    - Lazy loading для компонентов (navbar)
+    - Методы навигации (visit, reload)
+    - Проверка текущей страницы (should_be_on_page)
+
+Примеры:
+    >>> page = CampaignPage(browser_page)
+    >>> page.visit("https://example.com/campaigns")
+    >>> page.navbar.navigate_to('Кампании')
+    >>> page.should_be_on_page('/campaigns')
+"""
+
 import allure
 import httpx
 from playwright.sync_api import Page, Response
 from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
-from admin_office.components.models.ui.landing.landing_model import (
-    LandingGeneral,
-)
-from user_office.components.models.ui.authorization.authorization import (
-    AuthorizeUserOffice,
-)
-from user_office.components.models.ui.campaign.campaign_model import (
-    DigitalAboutCampaign,
-    DigitalCampaign,
-    DigitalCampaignsList,
-    DigitalCreateCampaign,
-)
-from user_office.components.models.ui.conversion.conversion import Conversion
-from user_office.components.models.ui.fileUpload.upload import UploadExcel
-from user_office.components.models.ui.health_check.health_user_office import (
-    HealthUserOffice,
-)
-from user_office.components.models.ui.mediaplan.mediaplan_model import (
-    DigitalCreateMediaplan,
-    DigitalExportMP,
-    DigitalMediaplan,
-    DigitalMplanAnalytics
-)
-from user_office.components.models.ui.navbar.navbar import Navbar
-from user_office.components.models.ui.product.product import CreateProduct
-from user_office.components.models.ui.reporting.reporting import Reporting
-from user_office.components.models.ui.strat_plan.specific_strat_plan import (
-    StratPlanSpecific,
-)
-from user_office.components.models.ui.strat_plan.strat_plan_general import (
-    StratPlanGeneral,
-)
-from user_office.components.models.ui.placement.placement_base_model import DigitalPlacement
-from user_office.components.models.ui.instructions_for_pubclications.instruction import (
-    InstructionsForPublications
-)
-from user_office.components.models.ui.dictionaries_page.dictionaries import Dictionaries, PlacementTemplate
-from user_office.components.models.ui.analitycs_page.analitycs import AnalitycsPage
+# Отключаем предупреждения о небезопасных HTTPS соединениях
 disable_warnings(InsecureRequestWarning)
-
-"""Основной контроллер для инициализации всех страниц"""
 
 
 class BasePage:
+    """
+    Базовый класс для всех страниц User Office.
+
+    Этот класс предоставляет общий функционал для всех page objects:
+    - Доступ к Playwright Page
+    - Lazy loading компонентов (Navbar)
+    - Методы навигации
+    - Проверка текущей страницы
+
+    Attributes:
+        page (Page): Playwright Page объект для взаимодействия с браузером
+
+    Usage:
+        Не используйте этот класс напрямую. Наследуйтесь от него:
+
+        >>> class MyPage(BasePage):
+        ...     def __init__(self, page: Page):
+        ...         super().__init__(page)
+        ...         self.my_component = MyComponent(page)
+    """
+
     def __init__(self, page: Page) -> None:
-        self.page = page
-        self.navbar = Navbar(page)
-        self.user_office = AuthorizeUserOffice(page)
-        self.analitycs_page = AnalitycsPage(page)
-        self.health_user_office = HealthUserOffice(page)
-        self.digital_campaign = DigitalCampaign(page)
-        self.digital_campaigns_list = DigitalCampaignsList(page)
-        self.digital_create_campaign = DigitalCreateCampaign(page)
-        self.digital_about_campaign = DigitalAboutCampaign(page)
-        self.digital_mediaplan = DigitalMediaplan(page)
-        self.digital_create_mediaplan = DigitalCreateMediaplan(page)
-        self.digital_export_mp = DigitalExportMP(page)
-        self.digital_placement = DigitalPlacement(page)
-        self.digital_placement_template = PlacementTemplate(page)
-        self.create_conversion = Conversion(page)
-        self.create_product_in_rk = CreateProduct(page)
-        self.strat_plan_general = StratPlanGeneral(page)
-        self.specific_strat_plan = StratPlanSpecific(page)
-        self.import_excel = UploadExcel(page)
-        self.reporting = Reporting(page)
-        self.landing_model = LandingGeneral(page)
-        self.instructions_for_publications = InstructionsForPublications(page)
-        self.dictionaries_page = Dictionaries(page)
-        self.digital_mediaplan_analytics = DigitalMplanAnalytics(page)
+        """
+        Инициализировать BasePage.
 
-    def visit(self, url: str) -> Response.ok:
-        with allure.step(title=f'Opening the url "{url}"'):
+        Args:
+            page: Playwright Page объект, представляющий текущую страницу браузера.
+                  Создается через browser.new_page() или chromium_page fixture.
+        """
+        self.page: Page = page
+
+    @property
+    def navbar(self):
+        """
+        Получить объект навигационного меню (Navbar).
+
+        Используется lazy loading - объект создается только при первом обращении.
+        Это экономит память и время если тест не использует меню.
+
+        Returns:
+            Navbar: Объект для работы с навигационным меню
+
+        Example:
+            >>> base_page = BasePage(page)
+            >>> base_page.navbar.navigate_to('Кампании')
+
+        Note:
+            Не вызывает self.page.wait_for_url() или других действий,
+            только создает объект Navbar при первом обращении.
+        """
+        from user_office.components.models.ui.navbar import Navbar
+        return Navbar(self.page)
+
+    @property
+    def url(self) -> str:
+        """
+        Получить текущий URL страницы.
+
+        Returns:
+            str: Текущий URL страницы, включая protocol, host, path и query.
+
+        Example:
+            >>> page.url
+            'https://example.com/campaigns?tab=digital'
+        """
+        return self.page.url
+
+    def visit(self, url: str) -> Response:
+        """
+        Перейти по указанному URL.
+
+        Использует httpx для выполнения GET запроса (чтобы получить редирект),
+        затем открывает финальный URL в браузере через Playwright.
+
+        Args:
+            url: Полный URL для перехода (например, 'https://example.com/campaigns')
+
+        Returns:
+            Response: Объект ответа Playwright от финальной страницы
+
+        Example:
+            >>> page.visit("https://example.com/campaigns")
+            # Сначала делает GET запрос для обработки редиректа
+            # Затем открывает финальный URL в браузере
+
+        Note:
+            Если URL содержит redirect, метод корректно обработает их
+            и откроет финальную страницу после редиректа.
+        """
+        with allure.step(f'Opening URL: {url}'):
             with httpx.Client(http2=True, verify=False) as client:
-                r = client.get(url=url)
-            return self.page.goto(url=str(r.url), wait_until='domcontentloaded')
+                response = client.get(url=url)
+            return self.page.goto(url=str(response.url), wait_until='domcontentloaded')
 
-    def reload(self) -> Response.ok:
-        with allure.step(f'Reloading page with url"{self.page.url}"'):
+    def reload(self) -> Response:
+        """
+        Перезагрузить текущую страницу.
+
+        Returns:
+            Response: Объект ответа Playwright от перезагруженной страницы
+
+        Example:
+            >>> page.reload()
+        """
+        with allure.step(f'Reloading page: {self.url}'):
             return self.page.reload(wait_until='domcontentloaded')
+
+    def should_be_on_page(self, url_fragment: str) -> bool:
+        """
+        Проверить, что текущий URL содержит указанную подстроку.
+
+        Используется для проверки, что пользователь находится на правильной странице
+        после навигации или действия.
+
+        Args:
+            url_fragment: Подстрока, которая должна присутствовать в URL.
+                         Может быть:
+                         - Часть пути ('/campaigns')
+                         - Полный URL ('https://example.com/campaigns')
+                         - Query параметр ('tab=digital')
+
+        Returns:
+            bool: True если подстрока найдена в URL, False иначе
+
+        Example:
+            >>> page.should_be_on_page('/campaigns')
+            True
+            >>> page.should_be_on_page('tab=digital')
+            True
+            >>> page.should_be_on_page('/users')
+            False
+        """
+        return url_fragment in self.page.url

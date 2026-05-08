@@ -1,5 +1,7 @@
 import allure
 import pytest
+from playwright.sync_api import expect
+
 from helper.linkshort import AllureLink as case
 from helper.linkshort import JiraLink as jira
 from helper.url_constructor import DigitalUrl
@@ -109,4 +111,4 @@ class TestCreate150PlacementInApi:
         mediaplan_page.digital_mediaplan.pagination_in_page_mediaplan_2_level()
         count = PlacementQueriesAPI(authorization_in_user_office_with_token).get_all_placement_id_mplan(
             mplan_data["data"]["mplanPlanningCreate"]["id"])
-        assert count == 150, "Количество размещений меньше 150"
+        expect(count == 150, "Количество размещений меньше 150").to_be_true()

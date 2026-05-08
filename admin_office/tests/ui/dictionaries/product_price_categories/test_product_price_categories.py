@@ -11,19 +11,33 @@ from helper.linkshort import AllureLink as case
 from helper.linkshort import JiraLink as jira
 
 
-# TODO Переписать согласно новой концепции
 @pytest.mark.usefixtures('authorization_in_admin_office')
 class TestsProductPriceCategoriesUI:
+    """
+    Набор тестов для проверки функциональности справочника Ценовые категории продукта.
+
+    Тестирует основные сценарии:
+    - Просмотр списка ценовых категорий
+    - Проверка соответствия данных в UI и базе данных
+    """
+
     @staticmethod
     @pytest.mark.regress()
-    @allure.title('Справочник Статусы размещений')
+    @allure.title('Справочник Ценовые категории продукта')
     @allure.severity(allure.severity_level.NORMAL)
     @allure.story(jira.JIRA_LINK + 'MDP-770')
     @allure.testcase(case.ALLURE_LINK + '149516')
     def test_view_product_price_categories(
         admin_product_price_categories_page: AdminOfficeProductPriceCategoriesPage,
     ) -> None:
-        """Справочник Ценовые категории продукта"""
+        """
+        Тест проверки отображения справочника ценовых категорий.
+
+        Проверяет:
+        - Переход на страницу ценовых категорий
+        - Получение данных из базы данных
+        - Соответствие ID, имени и кода в UI и базе данных
+        """
         admin_product_price_categories_page.go_to_product_price_categories()
         product_price_categories_db = (
             get_list_of_the_product_price_categories_from_db()
@@ -31,7 +45,7 @@ class TestsProductPriceCategoriesUI:
         table = (
             admin_product_price_categories_page.product_price_categories.table
         )
-        for index, row_db in enumerate(product_price_categories_db):
+        for row_db in product_price_categories_db:
             table.should_have_text_cell_in_row_by_contains_text(
                 text_row=str(row_db['id']),
                 number_cell=0,

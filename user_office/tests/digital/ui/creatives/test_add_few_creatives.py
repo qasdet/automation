@@ -1,9 +1,10 @@
 import time
 import allure
 import pytest
+from playwright.sync_api import expect
 
-from helper.linkshort import JiraLink as jira
 from helper.linkshort import AllureLink as case
+from helper.linkshort import JiraLink as jira
 from user_office.components.pages.mediaplan.create_mediaplan_page import (
     CreateMediaplanPage,
 )
@@ -40,6 +41,13 @@ creatives_dictionary = {
 
 @pytest.mark.usefixtures('authorization_in_user_office_with_token')
 class TestFewCreatives:
+    """
+    Набор тестов для проверки функциональности работы с креативами.
+
+    Тестирует основные сценарии:
+    - Загрузка нескольких креативов в размещении
+    """
+
     @staticmethod
     @pytest.mark.smoke
     @allure.title('Загрузка нескольких креативов в размещении')
@@ -53,8 +61,17 @@ class TestFewCreatives:
             digital_test_data,
             office_base_url: str,
             placement_page: PlacementPage,
-
     ):
+        """
+        Тест загрузки нескольких креативов в размещении.
+
+        Проверяет:
+        - Создание кампании, медиаплана и размещения через API
+        - Загрузку страницы креативов в UI
+        - Создание креативной рамки
+        - Добавление нескольких креативов в рамку
+        - Соответствие названий креативов между UI и сервером
+        """
         token = authorization_in_user_office_with_token
         campaign_id = CampaignsMutationsAPI(token).create_campaign_part(digital_test_data)
         mediaplan_data = MplansMutationsAPI(token).create_mplan_part(campaign_id)
@@ -84,9 +101,6 @@ class TestFewCreatives:
                 placement_page.digital_placement.creatives.page.get_by_role(
                     'button', name="Выберите файлы или переместите их сюда").click()
             file_chooser = fc.value
-            # Строку ниже можно раскомментировать только при локальном тестировании
-            # file_chooser.set_files("1170x200.jpg")
-            # А это строку ниже, при локальном тестировании нужно закомментировать, соответственно
             file_chooser.set_files("user_office/tests/digital/ui/creatives/1170x200.jpg")
             placement_page.digital_placement.creatives.click_creative_form_submit()
             time.sleep(1)
@@ -105,7 +119,6 @@ class TestFewCreatives:
             list_of_creative_names_from_ui.append(final_result)
         for item in get_info_from_server['data']['placementCreatives']:
             list_of_creative_names_from_server.append(item['name'])
-        assert list_of_creative_names_from_ui == list_of_creative_names_from_server, "Список названий креативов, " \
-                                                                                     "собранный на странице креативов " \
-                                                                                     "не совпадает со списком, " \
-                                                                                     "полученным от сервера."
+        expect(list_of_creative_names_from_ui == list_of_creative_names_from_server,
+               "Список названий креативов, собранный на странице креативов "
+               "не совпадает со списком, полученным от сервера.").to_be_true()

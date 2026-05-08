@@ -1,8 +1,9 @@
 import allure
 import pytest
+from playwright.sync_api import expect
 
-from helper.linkshort import JiraLink as jira
 from helper.linkshort import AllureLink as case
+from helper.linkshort import JiraLink as jira
 from user_office.components.pages.mediaplan.create_mediaplan_page import (
     CreateMediaplanPage,
 )
@@ -92,8 +93,8 @@ class TestCreatives:
         placement_page.digital_placement.creatives.click_general_button_cancel()
         input_field_check = placement_page.digital_placement.creatives.page.get_by_label("Название креатива").element_handle()
         final_result = input_field_check.evaluate("node => node.value")
-        assert creative_name == final_result, "Значение, которое сгенерировано в начале теста не совпадает с тем," \
-                                              "что получили после добавления креатива"
+        expect(final_result == creative_name,
+              "Значение, которое сгенерировано в начале теста не совпадает с тем, что получили после добавления креатива").to_be_true()
         get_info_from_server = CreativesQueriesAPI(token).get_creatives_from_specific_placement(placement_id)
-        assert final_result == get_info_from_server['data']['placementCreatives'][0]['name'], \
-            "Значение, которое сгенерировано в начале теста не совпадает с тем, что получили после добавления креатива"
+        expect(final_result == get_info_from_server['data']['placementCreatives'][0]['name'],
+               "Значение, которое сгенерировано в начале теста не совпадает с тем, что получили после добавления креатива").to_be_true()

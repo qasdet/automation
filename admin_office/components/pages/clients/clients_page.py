@@ -3,6 +3,7 @@ from playwright.sync_api import Page
 from admin_office.components.base_page import BasePage
 from admin_office.components.models.ui.clients.client_card import ClientCard
 from admin_office.components.models.ui.clients.clients import Clients
+from modals.dialog_modal import DialogModal
 
 
 class AdminOfficeClientsPage(BasePage):
@@ -13,6 +14,7 @@ class AdminOfficeClientsPage(BasePage):
 
         self.clients = Clients(page)
         self.client_card = ClientCard(page)
+        self.confirmation_dialog = DialogModal(page)
 
     def go_to_clients(self) -> None:
         """Перейти в справочник Клиенты"""

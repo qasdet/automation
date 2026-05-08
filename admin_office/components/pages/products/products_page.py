@@ -3,6 +3,7 @@ from playwright.sync_api import Page
 from admin_office.components.base_page import BasePage
 from admin_office.components.models.ui.products.product_card import ProductCard
 from admin_office.components.models.ui.products.products import Products
+from modals.dialog_modal import DialogModal
 
 
 class AdminOfficeProductsPage(BasePage):
@@ -13,6 +14,7 @@ class AdminOfficeProductsPage(BasePage):
 
         self.products = Products(page)
         self.product_card = ProductCard(page)
+        self.confirmation_dialog = DialogModal(page)
 
     def go_to_products(self) -> None:
         """Перейти в справочник Продукты"""

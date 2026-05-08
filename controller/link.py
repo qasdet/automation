@@ -1,9 +1,10 @@
-from controller.factory import Factory
-
-"""Компонент для обработки ссылок"""
+from controller.factory import AssertableMixin, ClickableMixin, GettableMixin, Factory
 
 
-class Link(Factory):
+class Link(ClickableMixin, AssertableMixin, GettableMixin, Factory):
+    """Компонент для работы с гиперссылками (link/anchor elements)."""
+
     @property
     def type_of(self) -> str:
+        """Тип компонента для логирования."""
         return 'link'
